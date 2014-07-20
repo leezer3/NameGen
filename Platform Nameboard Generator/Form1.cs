@@ -197,8 +197,8 @@ namespace Platform_Nameboard_Generator
                         file.WriteLine("[Texture]");
                         file.WriteLine("Load {0:f4}", Path.GetFileName(texture));
                         file.WriteLine("Coordinates 0,0,0");
-                        file.WriteLine("Coordinates 1,1,0");
-                        file.WriteLine("Coordinates 2,1,1");
+                        file.WriteLine("Coordinates 1,-1,0");
+                        file.WriteLine("Coordinates 2,-1,1");
                         file.WriteLine("Coordinates 3,0,1");
                         file.WriteLine("Transparent 0,0,255");
                         //Then write the rear face
