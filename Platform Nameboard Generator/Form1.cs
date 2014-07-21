@@ -17,8 +17,12 @@ namespace Platform_Nameboard_Generator
         //Holds the currently selected texture
         public string texture;
         public string reartexture;
+        public Color textcolor;
         //Get the launch path
         public string launchpath = AppDomain.CurrentDomain.BaseDirectory;
+
+        System.Drawing.SolidBrush textbrush = new System.Drawing.SolidBrush(Color.White);
+
         public static string GetTemporaryDirectory()
         {
             string tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
@@ -350,7 +354,7 @@ namespace Platform_Nameboard_Generator
                     StringFormat strFormat = new StringFormat();
                     strFormat.Alignment = StringAlignment.Center;
                     strFormat.LineAlignment = StringAlignment.Center;
-                    g.DrawString(textBox1.Text, selectedfont, Brushes.White,
+                    g.DrawString(textBox1.Text, selectedfont, textbrush,
                         new RectangleF(0, 0, 512, 128), strFormat);
 
                     
@@ -395,6 +399,15 @@ namespace Platform_Nameboard_Generator
             if (doublesided.Checked == true)
             {
                 singleside.Checked = false;
+            }
+        }
+
+        private void colorbutton_Click(object sender, EventArgs e)
+        {
+            if (colorDialog1.ShowDialog() == DialogResult.OK)
+            {
+                textbrush.Color = colorDialog1.Color;
+                updatepreview();
             }
         }
 

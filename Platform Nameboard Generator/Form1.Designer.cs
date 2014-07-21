@@ -53,6 +53,8 @@
             this.singleside = new System.Windows.Forms.RadioButton();
             this.label9 = new System.Windows.Forms.Label();
             this.doublesided = new System.Windows.Forms.RadioButton();
+            this.colorDialog1 = new System.Windows.Forms.ColorDialog();
+            this.colorbutton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
@@ -125,7 +127,7 @@
             // 
             this.fontbutton.Location = new System.Drawing.Point(11, 175);
             this.fontbutton.Name = "fontbutton";
-            this.fontbutton.Size = new System.Drawing.Size(192, 23);
+            this.fontbutton.Size = new System.Drawing.Size(194, 23);
             this.fontbutton.TabIndex = 8;
             this.fontbutton.Text = "Choose Font";
             this.fontbutton.UseVisualStyleBackColor = true;
@@ -243,7 +245,7 @@
             // 
             this.singleside.AutoSize = true;
             this.singleside.Checked = true;
-            this.singleside.Location = new System.Drawing.Point(13, 221);
+            this.singleside.Location = new System.Drawing.Point(14, 251);
             this.singleside.Name = "singleside";
             this.singleside.Size = new System.Drawing.Size(84, 17);
             this.singleside.TabIndex = 22;
@@ -255,7 +257,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(11, 205);
+            this.label9.Location = new System.Drawing.Point(12, 235);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(341, 13);
             this.label9.TabIndex = 23;
@@ -264,7 +266,7 @@
             // doublesided
             // 
             this.doublesided.AutoSize = true;
-            this.doublesided.Location = new System.Drawing.Point(104, 222);
+            this.doublesided.Location = new System.Drawing.Point(105, 252);
             this.doublesided.Name = "doublesided";
             this.doublesided.Size = new System.Drawing.Size(89, 17);
             this.doublesided.TabIndex = 24;
@@ -272,11 +274,22 @@
             this.doublesided.UseVisualStyleBackColor = true;
             this.doublesided.CheckedChanged += new System.EventHandler(this.doublesided_CheckedChanged);
             // 
+            // colorbutton
+            // 
+            this.colorbutton.Location = new System.Drawing.Point(12, 205);
+            this.colorbutton.Name = "colorbutton";
+            this.colorbutton.Size = new System.Drawing.Size(193, 23);
+            this.colorbutton.TabIndex = 25;
+            this.colorbutton.Text = "Choose Text Color";
+            this.colorbutton.UseVisualStyleBackColor = true;
+            this.colorbutton.Click += new System.EventHandler(this.colorbutton_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(401, 547);
+            this.Controls.Add(this.colorbutton);
             this.Controls.Add(this.doublesided);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.singleside);
@@ -339,6 +352,8 @@
         private System.Windows.Forms.RadioButton singleside;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.RadioButton doublesided;
+        private System.Windows.Forms.ColorDialog colorDialog1;
+        private System.Windows.Forms.Button colorbutton;
     }
 }
 
