@@ -16,8 +16,7 @@ namespace Platform_Nameboard_Generator
         
         //Holds the currently selected texture
         public string texture;
-        //Multi-dimensional string list
-        int i;
+        public string reartexture;
         //Get the launch path
         public string launchpath = AppDomain.CurrentDomain.BaseDirectory;
         public static string GetTemporaryDirectory()
@@ -30,6 +29,7 @@ namespace Platform_Nameboard_Generator
         //Then attempt to load the default combobox values from textures.ini
         string[] defaulttextures;
         Dictionary<string, string> textures = new Dictionary<string, string>();
+        Dictionary<string, string> reartextures = new Dictionary<string, string>();
         public Font selectedfont = new Font("Times New Roman", 36);
 
         public Form1()
@@ -54,16 +54,24 @@ namespace Platform_Nameboard_Generator
                     {
                         //This line isn't a comment
                         string[] input = defaulttextures[j].Split(',');
-                        if (input.Length != 2)
-                        {
-                            //Discard if the entry is invalid
-                            MessageBox.Show("Invalid entry detected in textures.ini");
-                        }
-                        else
+                        
+                        if(input.Length == 2)
                         {
                             //Otherwise, add
                             textures.Add(input[0], input[1]);
                             comboBox1.Items.Add(input[0]);
+                        }
+                        else if (input.Length == 3)
+                        {
+                            //Otherwise, add
+                            textures.Add(input[0], input[1]);
+                            reartextures.Add(input[0], input[2]);
+                            comboBox1.Items.Add(input[0]);
+                        }
+                        else
+                        {
+                            //Discard if the entry is invalid
+                            MessageBox.Show("Invalid entry detected in textures.ini");
                         }
                     }
                 }
@@ -113,6 +121,19 @@ namespace Platform_Nameboard_Generator
                 this.pictureBox1.Image = tempimage;
                 pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
             }
+            if (reartextures.ContainsKey(Convert.ToString(comboBox1.SelectedItem)))
+            {
+                string rearpath;
+                if (!Path.IsPathRooted(reartextures[Convert.ToString(comboBox1.SelectedItem)]))
+                {
+                    rearpath = launchpath + reartextures[Convert.ToString(comboBox1.SelectedItem)];   
+                }
+                else
+                {
+                    rearpath = reartextures[Convert.ToString(comboBox1.SelectedItem)];
+                }
+                reartexture = rearpath;
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -148,7 +169,7 @@ namespace Platform_Nameboard_Generator
 
         private void CreateObject_Click(object sender, EventArgs e)
         {
-            
+            updatepreview();
             if (!textures.ContainsKey(Convert.ToString(comboBox1.SelectedItem)))
             {
                 MessageBox.Show("No texture currently selected!");
@@ -161,6 +182,7 @@ namespace Platform_Nameboard_Generator
                     //Create Object
                     string objectfile = Path.Combine(launchpath + "\\Output\\Nameboards\\" + MakeValidFileName(textBox1.Text) + ".b3d");
                     string finaltexture = Path.Combine(launchpath + "\\Output\\Nameboards\\" + MakeValidFileName(textBox1.Text) + ".png");
+                    string rearcopy = Path.Combine(launchpath + "\\Output\\Nameboards\\" + Path.GetFileName(reartexture));
                     //Cleanup output first
                     if (File.Exists(objectfile))
                     {
@@ -199,32 +221,65 @@ namespace Platform_Nameboard_Generator
                         file.WriteLine("Vertex -0.025,{0:f4},{1:f4}", aboveground + height, width);
                         file.WriteLine("Vertex -0.025,{0:f4},{1:f4}", aboveground, width);
                         file.WriteLine("Vertex -0.025,{0:f4},{1:f4}", aboveground, 0 - width);
-                        file.WriteLine("Face2 0,1,2,3");
-                        file.WriteLine();
-                        file.WriteLine("[Texture]");
-                        file.WriteLine("Load {0:f4}", Path.GetFileName(texture));
-                        file.WriteLine("Coordinates 0,0,0");
-                        file.WriteLine("Coordinates 1,-1,0");
-                        file.WriteLine("Coordinates 2,-1,1");
-                        file.WriteLine("Coordinates 3,0,1");
-                        file.WriteLine("Transparent 0,0,255");
-                        //Then write the rear face
-                        file.WriteLine();
-                        file.WriteLine(";Sign Rear");
-                        file.WriteLine("[MeshBuilder]");
-                        file.WriteLine("Vertex 0.025,{0:f4},{1:f4}", aboveground + height, 0 - width);
-                        file.WriteLine("Vertex 0.025,{0:f4},{1:f4}", aboveground + height, width);
-                        file.WriteLine("Vertex 0.025,{0:f4},{1:f4}", aboveground, width);
-                        file.WriteLine("Vertex 0.025,{0:f4},{1:f4}", aboveground, 0 - width);
-                        file.WriteLine("Face2 3,2,1,0");
-                        file.WriteLine();
-                        file.WriteLine("[Texture]");
-                        file.WriteLine("Load {0:f4}", Path.GetFileName(texture));
-                        file.WriteLine("Coordinates 0,0,0");
-                        file.WriteLine("Coordinates 1,1,0");
-                        file.WriteLine("Coordinates 2,1,1");
-                        file.WriteLine("Coordinates 3,0,1");
-                        file.WriteLine("Transparent 0,0,255");
+                        if (singleside.Checked == true)
+                        {
+                            file.WriteLine("Face 3,2,1,0");
+                            file.WriteLine();
+                            file.WriteLine("[Texture]");
+                            file.WriteLine("Load {0:f4}", Path.GetFileName(texture));
+                            file.WriteLine("Coordinates 0,0,0");
+                            file.WriteLine("Coordinates 1,-1,0");
+                            file.WriteLine("Coordinates 2,-1,1");
+                            file.WriteLine("Coordinates 3,0,1");
+                            file.WriteLine("Transparent 0,0,255");
+                            //Write the rear face with an opposite face statement
+                            file.WriteLine();
+                            file.WriteLine(";Sign Rear");
+                            file.WriteLine("[MeshBuilder]");
+                            file.WriteLine("Vertex -0.025,{0:f4},{1:f4}", aboveground + height, 0 - width);
+                            file.WriteLine("Vertex -0.025,{0:f4},{1:f4}", aboveground + height, width);
+                            file.WriteLine("Vertex -0.025,{0:f4},{1:f4}", aboveground, width);
+                            file.WriteLine("Vertex -0.025,{0:f4},{1:f4}", aboveground, 0 - width);
+                            file.WriteLine("Face 0,1,2,3");
+                            file.WriteLine();
+                            file.WriteLine("[Texture]");
+                            file.WriteLine("Load {0:f4}", Path.GetFileName(reartexture));
+                            file.WriteLine("Coordinates 0,0,0");
+                            file.WriteLine("Coordinates 1,-1,0");
+                            file.WriteLine("Coordinates 2,-1,1");
+                            file.WriteLine("Coordinates 3,0,1");
+                            file.WriteLine("Transparent 0,0,255");
+                        }
+                        else
+                        {
+                            //Double-sided needs a face2
+                            file.WriteLine("Face2 0,1,2,3");
+                            file.WriteLine();
+                            file.WriteLine("[Texture]");
+                            file.WriteLine("Load {0:f4}", Path.GetFileName(texture));
+                            file.WriteLine("Coordinates 0,0,0");
+                            file.WriteLine("Coordinates 1,-1,0");
+                            file.WriteLine("Coordinates 2,-1,1");
+                            file.WriteLine("Coordinates 3,0,1");
+                            file.WriteLine("Transparent 0,0,255");
+                            //Then write the rear face
+                            file.WriteLine();
+                            file.WriteLine(";Sign Rear");
+                            file.WriteLine("[MeshBuilder]");
+                            file.WriteLine("Vertex 0.025,{0:f4},{1:f4}", aboveground + height, 0 - width);
+                            file.WriteLine("Vertex 0.025,{0:f4},{1:f4}", aboveground + height, width);
+                            file.WriteLine("Vertex 0.025,{0:f4},{1:f4}", aboveground, width);
+                            file.WriteLine("Vertex 0.025,{0:f4},{1:f4}", aboveground, 0 - width);
+                            file.WriteLine("Face2 3,2,1,0");
+                            file.WriteLine();
+                            file.WriteLine("[Texture]");
+                            file.WriteLine("Load {0:f4}", Path.GetFileName(texture));
+                            file.WriteLine("Coordinates 0,0,0");
+                            file.WriteLine("Coordinates 1,1,0");
+                            file.WriteLine("Coordinates 2,1,1");
+                            file.WriteLine("Coordinates 3,0,1");
+                            file.WriteLine("Transparent 0,0,255");
+                        }
                         //Now see how long the legs are and write them in
                         file.WriteLine();
                         file.WriteLine(";Leg Left");
@@ -239,7 +294,9 @@ namespace Platform_Nameboard_Generator
                         file.WriteLine("Color 80,80,80");
                         file.WriteLine("Translate 0,{0:f4},{1:f4}", (aboveground / 1.5) - 0.3, (width - 0.5));
                     }
-                    File.Copy(texture, finaltexture);
+
+                    File.Copy(texture, finaltexture, true);
+                    File.Copy(reartexture, rearcopy, true);
 
                     //Cleanup temporary textures
                     string[] filePaths = Directory.GetFiles(temppath);
@@ -248,7 +305,7 @@ namespace Platform_Nameboard_Generator
                         var name = new FileInfo(filePath).Name;
                         name = name.ToLower();
                         File.Delete(filePath);
-                    }
+                    } 
                 }
                 catch
                 {
@@ -322,6 +379,22 @@ namespace Platform_Nameboard_Generator
             {
                 selectedfont = fontDialog1.Font;
                 updatepreview();
+            }
+        }
+
+        private void singleside_CheckedChanged(object sender, EventArgs e)
+        {
+            if(singleside.Checked == true)
+            {
+                doublesided.Checked = false;
+            }
+        }
+
+        private void doublesided_CheckedChanged(object sender, EventArgs e)
+        {
+            if (doublesided.Checked == true)
+            {
+                singleside.Checked = false;
             }
         }
 
