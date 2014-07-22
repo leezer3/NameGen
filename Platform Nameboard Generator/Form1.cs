@@ -163,6 +163,7 @@ namespace Platform_Nameboard_Generator
                 }
                 reartexture = rearpath;
             }
+            updatepreview();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -448,13 +449,20 @@ namespace Platform_Nameboard_Generator
                     //Handle alternate sign types with a different sized text box
                     if ((string)comboBox1.SelectedItem == "GWR Wooden" || (string)comboBox1.SelectedItem == "SR Wooden")
                     {
+                        //GWR & SR Wooden signs
                         g.DrawString(textBox1.Text, selectedfont, textbrush,
                         new RectangleF(21, 35, 468, 107), strFormat);
                     }
+                    else if ((string)comboBox1.SelectedItem == "SR Target" || (string)comboBox1.SelectedItem == "SR Target (Junction)")
+                    {
+                        //SR Targets
+                        g.DrawString(textBox1.Text, selectedfont, textbrush,
+                        new RectangleF(0, 77, 512, 100), strFormat);
+                    }
                     else
                     {
-                    g.DrawString(textBox1.Text, selectedfont, textbrush,
-                        new RectangleF(0, 0, 512, 128), strFormat);
+                        g.DrawString(textBox1.Text, selectedfont, textbrush,
+                            new RectangleF(0, 0, 512, 128), strFormat);
                     }
                     
                     prevbitmap.Save(tempfile, System.Drawing.Imaging.ImageFormat.Png);
