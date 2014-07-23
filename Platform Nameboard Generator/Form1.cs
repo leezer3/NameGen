@@ -373,19 +373,43 @@ namespace Platform_Nameboard_Generator
                                 file.WriteLine("Coordinates 3,0,1");
                                 file.WriteLine("Transparent 0,0,255");
                             }
-                            //Now see how long the legs are and write them in
-                            file.WriteLine();
-                            file.WriteLine(";Leg Left");
-                            file.WriteLine("[MeshBuilder]");
-                            file.WriteLine("Cube 0.024,{0:f4},0.049", leglength);
-                            file.WriteLine("Color 80,80,80");
-                            file.WriteLine("Translate 0,{0:f4},{1:f4}", (aboveground / 1.5) - 0.3, (0.5 - width));
-                            file.WriteLine();
-                            file.WriteLine(";Leg Right");
-                            file.WriteLine("[MeshBuilder]");
-                            file.WriteLine("Cube 0.024,{0:f4},0.049", leglength);
-                            file.WriteLine("Color 80,80,80");
-                            file.WriteLine("Translate 0,{0:f4},{1:f4}", (aboveground / 1.5) - 0.3, (width - 0.5));
+                            //Handle the legs
+                            if (radioButton1.Checked == true)
+                            {
+                                //Cube Type Legs
+                                file.WriteLine();
+                                file.WriteLine(";Leg Left");
+                                file.WriteLine("[MeshBuilder]");
+                                file.WriteLine("Cube 0.024,{0:f4},0.049", leglength);
+                                file.WriteLine("Color 80,80,80");
+                                file.WriteLine("Translate 0,{0:f4},{1:f4}", (aboveground / 1.5) - 0.3, (0.5 - width));
+                                file.WriteLine();
+                                file.WriteLine(";Leg Right");
+                                file.WriteLine("[MeshBuilder]");
+                                file.WriteLine("Cube 0.024,{0:f4},0.049", leglength);
+                                file.WriteLine("Color 80,80,80");
+                                file.WriteLine("Translate 0,{0:f4},{1:f4}", (aboveground / 1.5) - 0.3, (width - 0.5));
+                            }
+                            if (radioButton2.Checked == true)
+                            {
+                                //Cylinder Type Legs
+                                file.WriteLine();
+                                file.WriteLine(";Leg Left");
+                                file.WriteLine("[MeshBuilder]");
+                                file.WriteLine("Cylinder 8,0.025,0.025,{0:f4}", leglength * 1.7);
+                                file.WriteLine("Translate 0,{0:f4},{1:f4}", (aboveground / 1.5) - 0.3, (0.5 - width));
+                                file.WriteLine("Color 80,80,80");
+                                file.WriteLine();
+                                file.WriteLine(";Leg Right");
+                                file.WriteLine("[MeshBuilder]");
+                                file.WriteLine("Cylinder 8,0.025,0.025,{0:f4}", leglength * 1.7);
+                                file.WriteLine("Translate 0,{0:f4},{1:f4}", (aboveground / 1.5) - 0.3, (width - 0.5));
+                                file.WriteLine("Color 80,80,80");
+                            }
+                            else
+                            {
+                                //Twiddle, no legs to be generated
+                            }
                         }
                     }
 
@@ -446,18 +470,37 @@ namespace Platform_Nameboard_Generator
                     StringFormat strFormat = new StringFormat();
                     strFormat.Alignment = StringAlignment.Center;
                     strFormat.LineAlignment = StringAlignment.Center;
+                    string currenttexture = (string)comboBox1.SelectedItem;
                     //Handle alternate sign types with a different sized text box
-                    if ((string)comboBox1.SelectedItem == "GWR Wooden" || (string)comboBox1.SelectedItem == "SR Wooden")
+                    if (currenttexture == "GWR Wooden" || (string)comboBox1.SelectedItem == "SR Wooden")
                     {
                         //GWR & SR Wooden signs
                         g.DrawString(textBox1.Text, selectedfont, textbrush,
                         new RectangleF(21, 35, 468, 107), strFormat);
                     }
-                    else if ((string)comboBox1.SelectedItem == "SR Target" || (string)comboBox1.SelectedItem == "SR Target (Junction)")
+                    else if (currenttexture == "SR Target" || (string)comboBox1.SelectedItem == "SR Target (Junction)")
                     {
                         //SR Targets
                         g.DrawString(textBox1.Text, selectedfont, textbrush,
                         new RectangleF(0, 77, 512, 100), strFormat);
+                    }
+                    else if (currenttexture == "London Underground (Modern)")
+                    {
+                        //LU Modern sign
+                        g.DrawString(textBox1.Text, selectedfont, textbrush,
+                            new RectangleF(8, 206, 496, 100), strFormat);
+                    }
+                    else if (currenttexture == "British Railways White Double Arrow")
+                    {
+                        //BR White Double Arrow
+                        g.DrawString(textBox1.Text, selectedfont, textbrush,
+                            new RectangleF(115, 0, 397, 128), strFormat);
+                    }
+                    else if (currenttexture.Contains("Totem"))
+                    {
+                        //BR Totems
+                        g.DrawString(textBox1.Text, selectedfont, textbrush,
+                            new RectangleF(40, 30, 432, 68), strFormat);
                     }
                     else
                     {
@@ -515,6 +558,36 @@ namespace Platform_Nameboard_Generator
             {
                 textbrush.Color = colorDialog1.Color;
                 updatepreview();
+            }
+        }
+
+        private void radioButton1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioButton1.Checked == true)
+            {
+                radioButton2.Checked = false;
+                radioButton3.Checked = false;
+                numericUpDown4.Enabled = true;
+            }
+        }
+
+        private void radioButton2_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioButton2.Checked == true)
+            {
+                radioButton1.Checked = false;
+                radioButton3.Checked = false;
+                numericUpDown4.Enabled = true;
+            }
+        }
+
+        private void radioButton3_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioButton3.Checked == true)
+            {
+                radioButton1.Checked = false;
+                radioButton2.Checked = false;
+                numericUpDown4.Enabled = false;
             }
         }
 
