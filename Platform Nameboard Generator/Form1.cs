@@ -17,7 +17,6 @@ namespace Platform_Nameboard_Generator
         //Holds the currently selected texture
         public string texture;
         public string reartexture;
-        public Color textcolor;
         //Get the launch path
         public string launchpath = AppDomain.CurrentDomain.BaseDirectory;
 
@@ -102,14 +101,37 @@ namespace Platform_Nameboard_Generator
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            string currenttexture = (string)comboBox1.SelectedItem;
             //Disable the leg length paramater if we are building wooden nameboards with legs in the image
-            if ((string)comboBox1.SelectedItem == "GWR Wooden" || (string)comboBox1.SelectedItem == "SR Wooden")
+            if (currenttexture == "GWR Wooden" || currenttexture == "SR Wooden")
             {
                 //Disable legs boxes and fill the height and width
                 numericUpDown3.Enabled = false;
                 numericUpDown4.Enabled = false;
                 numericUpDown1.Value = (decimal)6.0;
                 numericUpDown2.Value = (decimal)3.0;
+                textbrush.Color = Color.White;
+            }
+            //Disable the leg length paramater and fill in 2x2m as default
+            else if (currenttexture.Contains("London Underground (Modern"))
+            {
+                //Disable legs boxes and fill the height and width
+                numericUpDown3.Enabled = false;
+                numericUpDown4.Enabled = false;
+                numericUpDown1.Value = (decimal)2.0;
+                numericUpDown2.Value = (decimal)2.0;
+                textbrush.Color = Color.White;
+            }
+            else if (currenttexture == "British Railways White Double Arrow")
+            {
+                //Enable legs boxes and fill all values with defaults
+                numericUpDown3.Enabled = true;
+                numericUpDown4.Enabled = true;
+                numericUpDown1.Value = (decimal)4.0;
+                numericUpDown2.Value = (decimal)0.6;
+                numericUpDown3.Value = (decimal)1.0;
+                numericUpDown4.Value = (decimal)1.0;
+                textbrush.Color = Color.Black;
             }
             else
             {
@@ -120,6 +142,7 @@ namespace Platform_Nameboard_Generator
                 numericUpDown2.Value = (decimal)0.6;
                 numericUpDown3.Value = (decimal)1.0;
                 numericUpDown4.Value = (decimal)1.0;
+                textbrush.Color = Color.White;
             }
             //Check to see that the file is in our dictionary and load it
             if (textures.ContainsKey(Convert.ToString(comboBox1.SelectedItem)))
@@ -197,8 +220,54 @@ namespace Platform_Nameboard_Generator
             return System.Text.RegularExpressions.Regex.Replace(name, invalidRegStr, "_");
         }
 
+        public bool TestTransparency(string testtexture)
+        {
+            
+            //Test for transparency in front
+            {
+                bool testresult = false;
+                    Bitmap bmp = new Bitmap(testtexture);
+                    //Iterate whole bitmap to findout the picked color
+
+                    for (int i = 0; i < bmp.Height; i++)
+                    {
+                        if (testresult == true)
+                        {
+                            //Try to break out of the loop at each itineration
+                            break;
+                        }
+                        for (int j = 0; j < bmp.Width; j++)
+                        {
+                            
+                            //Get the color at each pixel
+
+                            Color now_color = bmp.GetPixel(j, i);
+                            //Compare Pixel's Color ARGB property with the picked color's ARGB property 
+
+                            if (now_color == Color.FromArgb(0,0,255))
+                            {
+                                testresult = true;
+                                break;
+                            }
+
+                        }
+                    }
+                    bmp.Dispose();
+                    if (testresult == true)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+            }
+        }
+
         private void CreateObject_Click(object sender, EventArgs e)
         {
+            string transparentfront;
+            string transparentrear;
             updatepreview();
             if (!textures.ContainsKey(Convert.ToString(comboBox1.SelectedItem)))
             {
@@ -207,12 +276,12 @@ namespace Platform_Nameboard_Generator
             }
             if (textBox1.Text.Length > 0)
             {
-                try
+              try
                 {
                     //Create Object
-                    string objectfile = Path.Combine(launchpath + "\\Output\\Nameboards\\" + MakeValidFileName(textBox1.Text) + ".b3d");
-                    string finaltexture = Path.Combine(launchpath + "\\Output\\Nameboards\\" + MakeValidFileName(textBox1.Text) + ".png");
-                    string rearcopy = Path.Combine(launchpath + "\\Output\\Nameboards\\" + Path.GetFileName(reartexture));
+                    string objectfile = Path.Combine(launchpath + "Output\\Nameboards\\" + MakeValidFileName(textBox1.Text) + ".b3d");
+                    string finaltexture = Path.Combine(launchpath + "Output\\Nameboards\\" + MakeValidFileName(textBox1.Text) + ".png");
+                    string rearcopy = Path.Combine(launchpath + "Output\\Nameboards\\" + Path.GetFileName(reartexture));
                     //Cleanup output first
                     if (File.Exists(objectfile))
                     {
@@ -238,6 +307,27 @@ namespace Platform_Nameboard_Generator
 
                     double aboveground = (double)numericUpDown3.Value;
                     double leglength = (double)numericUpDown4.Value;
+                    //Copy across final textures before testing them for transparencies
+                    File.Copy(texture, finaltexture, true);
+                    File.Copy(reartexture, rearcopy, true);
+                    //Test for transparencies
+                    if (TestTransparency(finaltexture) == true)
+                    {
+                        transparentfront = "Transparent 0,0,255";
+                    }
+                    else
+                    {
+                        transparentfront = "";
+                    }
+
+                    if (TestTransparency(rearcopy) == true)
+                    {
+                        transparentrear = "Transparent 0,0,255";
+                    }
+                    else
+                    {
+                        transparentrear = "";
+                    }
                     //Then open streamwriter
                     using (System.IO.StreamWriter file = new System.IO.StreamWriter(objectfile, true))
                     {
@@ -262,7 +352,7 @@ namespace Platform_Nameboard_Generator
                             file.WriteLine("Coordinates 1,-1,0");
                             file.WriteLine("Coordinates 2,-1,1");
                             file.WriteLine("Coordinates 3,0,1");
-                            file.WriteLine("Transparent 0,0,255");
+                            file.WriteLine(transparentfront);
                             file.WriteLine();
                             if (singleside.Checked == true)
                             {
@@ -280,7 +370,7 @@ namespace Platform_Nameboard_Generator
                                 file.WriteLine("Coordinates 1,-1,0");
                                 file.WriteLine("Coordinates 2,-1,1");
                                 file.WriteLine("Coordinates 3,0,1");
-                                file.WriteLine("Transparent 0,0,255");
+                                file.WriteLine(transparentrear);
                             }
                             else
                             {
@@ -298,7 +388,7 @@ namespace Platform_Nameboard_Generator
                                 file.WriteLine("Coordinates 1,1,0");
                                 file.WriteLine("Coordinates 2,1,1");
                                 file.WriteLine("Coordinates 3,0,1");
-                                file.WriteLine("Transparent 0,0,255");
+                                file.WriteLine(transparentfront);
                             }
                             //No legs required for this one.....
                         }
@@ -324,7 +414,7 @@ namespace Platform_Nameboard_Generator
                                 file.WriteLine("Coordinates 1,-1,0");
                                 file.WriteLine("Coordinates 2,-1,1");
                                 file.WriteLine("Coordinates 3,0,1");
-                                file.WriteLine("Transparent 0,0,255");
+                                file.WriteLine(transparentfront);
                                 //Write the rear face with an opposite face statement
                                 file.WriteLine();
                                 file.WriteLine(";Sign Rear");
@@ -341,7 +431,7 @@ namespace Platform_Nameboard_Generator
                                 file.WriteLine("Coordinates 1,1,0");
                                 file.WriteLine("Coordinates 2,1,1");
                                 file.WriteLine("Coordinates 3,0,1");
-                                file.WriteLine("Transparent 0,0,255");
+                                file.WriteLine(transparentrear);
                             }
                             else
                             {
@@ -354,7 +444,7 @@ namespace Platform_Nameboard_Generator
                                 file.WriteLine("Coordinates 1,-1,0");
                                 file.WriteLine("Coordinates 2,-1,1");
                                 file.WriteLine("Coordinates 3,0,1");
-                                file.WriteLine("Transparent 0,0,255");
+                                file.WriteLine(transparentfront);
                                 //Then write the rear face
                                 file.WriteLine();
                                 file.WriteLine(";Sign Rear");
@@ -371,7 +461,7 @@ namespace Platform_Nameboard_Generator
                                 file.WriteLine("Coordinates 1,1,0");
                                 file.WriteLine("Coordinates 2,1,1");
                                 file.WriteLine("Coordinates 3,0,1");
-                                file.WriteLine("Transparent 0,0,255");
+                                file.WriteLine(transparentrear);
                             }
                             //Handle the legs
                             if (radioButton1.Checked == true)
@@ -412,9 +502,6 @@ namespace Platform_Nameboard_Generator
                             }
                         }
                     }
-
-                    File.Copy(texture, finaltexture, true);
-                    File.Copy(reartexture, rearcopy, true);
 
                     //Cleanup temporary textures
                     string[] filePaths = Directory.GetFiles(temppath);
