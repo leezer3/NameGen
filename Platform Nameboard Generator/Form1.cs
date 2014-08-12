@@ -156,16 +156,17 @@ namespace Platform_Nameboard_Generator
                 {
                     fullpath = textures[Convert.ToString(comboBox1.SelectedItem)];
                 }
+                
                 try
                 {
                     Bitmap tempimage;
                     using (FileStream myStream = new FileStream(fullpath, FileMode.Open))
                     {
                         tempimage = (Bitmap)Image.FromStream(myStream);
-
+                        tempimage.MakeTransparent(Color.FromArgb(0, 0, 255));
+                        this.pictureBox1.Image = tempimage;
                     }
-                    tempimage.MakeTransparent(Color.FromArgb(0, 0, 255));
-                    this.pictureBox1.Image = tempimage;
+                    
                     pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
                 }
                 catch
@@ -602,12 +603,12 @@ namespace Platform_Nameboard_Generator
                 using (FileStream myStream = new FileStream(tempfile, FileMode.Open))
                 {
                     tempimage = (Bitmap)Image.FromStream(myStream);
-                    
+                    tempimage.MakeTransparent(Color.FromArgb(0, 0, 255));
+                    this.pictureBox1.Image = tempimage;
+                    pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
+                    texture = tempfile;
                 }
-                tempimage.MakeTransparent(Color.FromArgb(0, 0, 255));
-                this.pictureBox1.Image = tempimage;
-                pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
-                texture = tempfile;
+                
             }
 
         }
